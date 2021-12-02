@@ -1,22 +1,7 @@
-val =
-  case File.read("./01/1.txt") do
-    {:ok, content} ->
-      content
-
-    {:error, reason} ->
-      raise reason
-  end
-
-strings = val |> String.split("\n") |> Enum.map(fn x -> String.to_integer(x) end)
-
-zongs =
-  Enum.zip([Enum.drop(strings, 2), Enum.drop(strings, 1), strings])
-  |> Enum.map(fn x -> x |> Tuple.to_list() |> Enum.sum() end)
-
-strongs =
-  Enum.zip_reduce(Enum.drop(zongs, 1), zongs, 0, fn
-    x, y, acc when x > y -> acc + 1
-    _, _, acc -> acc
-  end)
-
-IO.puts(strongs)
+File.stream!("./01/1.txt")
+|> Stream.map(fn x -> x |> String.trim() |> String.to_integer() end)
+|> Enum.chunk_every(3, 1, :discard)
+|> Enum.map(&Enum.sum/1)
+|> Enum.chunk_every(2, 1, :discard)
+|> Enum.count(fn [x, y] -> x < y end)
+|> IO.puts()
